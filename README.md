@@ -64,3 +64,13 @@ mapping:
   from.host.a: http://to.host.b/
   foo.bar.com: https://bar.baz.org/sub-path
 ```
+
+### Server binding
+
+By default the _sirup_ server binds to port 8080 on all local IP addresses.
+While you cannot currently change the bound addresses, the port can be changed
+through the use of th `-p <port>` flag. For example, to use port 8000 instead:
+
+```bash
+sirup -p 8000
+```
