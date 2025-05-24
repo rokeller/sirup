@@ -16,6 +16,11 @@ const (
 )
 
 func TestServerForMappedHost(t *testing.T) {
+	c := config{
+		Mapping: map[string]string{
+			"localhost": "http://test.local/path",
+		},
+	}
 	tests := []struct {
 		name          string
 		requestMethod string
@@ -66,7 +71,7 @@ func TestServerForMappedHost(t *testing.T) {
 
 			wg := &sync.WaitGroup{}
 			wg.Add(1)
-			srv := runServer(wg, 8000)
+			srv := runServer(wg, 8000, c)
 			time.Sleep(ServerStartupSleepTime)
 
 			req, err := http.NewRequest(tt.requestMethod,
@@ -96,6 +101,11 @@ func TestServerForMappedHost(t *testing.T) {
 }
 
 func TestServerForMappedHostButUnavailbleHost(t *testing.T) {
+	c := config{
+		Mapping: map[string]string{
+			"localhost": "http://test.local/path/",
+		},
+	}
 	tests := []struct {
 		name          string
 		requestMethod string
@@ -116,7 +126,7 @@ func TestServerForMappedHostButUnavailbleHost(t *testing.T) {
 
 			wg := &sync.WaitGroup{}
 			wg.Add(1)
-			srv := runServer(wg, 8001)
+			srv := runServer(wg, 8001, c)
 			time.Sleep(ServerStartupSleepTime)
 
 			req, err := http.NewRequest(tt.requestMethod,
@@ -146,6 +156,7 @@ func TestServerForMappedHostButUnavailbleHost(t *testing.T) {
 }
 
 func TestServerForUnmappedHost(t *testing.T) {
+	c := config{}
 	tests := []struct {
 		name          string
 		requestMethod string
@@ -166,11 +177,11 @@ func TestServerForUnmappedHost(t *testing.T) {
 
 			wg := &sync.WaitGroup{}
 			wg.Add(1)
-			srv := runServer(wg, 8002)
+			srv := runServer(wg, 8002, c)
 			time.Sleep(ServerStartupSleepTime)
 
 			req, err := http.NewRequest(tt.requestMethod,
-				"http://127.0.0.1:8002/"+tt.requestRelUrl,
+				"http://localhost:8002/"+tt.requestRelUrl,
 				bytes.NewReader(tt.requestBody),
 			)
 			if nil != err {
