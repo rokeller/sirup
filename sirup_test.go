@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"net/http"
+	"os"
 	"reflect"
 	"sync"
 	"testing"
@@ -206,6 +207,85 @@ func TestServerForUnmappedHost(t *testing.T) {
 	}
 }
 
+func Test_readConfig(t *testing.T) {
+	errorNilOrPanic(os.WriteFile("/tmp/sirup_Test_readConfig_01.yaml", nil, 0644))
+	errorNilOrPanic(os.WriteFile("/tmp/sirup_Test_readConfig_02.yaml", []byte(`
+mapping:
+`), 0644))
+	errorNilOrPanic(os.WriteFile("/tmp/sirup_Test_readConfig_03.yaml", []byte(`
+mapping:
+  foo: http://bar.com/baz
+`), 0644))
+	errorNilOrPanic(os.WriteFile("/tmp/sirup_Test_readConfig_04.yaml", []byte(`
+mapping:
+  abc: http://def.com/
+  xyz: https://hello.world/xyz/
+`), 0644))
+	errorNilOrPanic(os.WriteFile("/tmp/sirup_Test_readConfig_05.yaml", []byte(`mapping: a string value`), 0644))
+
+	type args struct {
+		path string
+	}
+	tests := []struct {
+		name    string
+		path    string
+		want    *config
+		wantErr bool
+	}{
+		{
+			name:    "Inexistent file",
+			path:    "/blah",
+			wantErr: true,
+		},
+		{
+			name: "Empty file",
+			path: "/tmp/sirup_Test_readConfig_01.yaml",
+			want: &config{},
+		},
+		{
+			name: "Empty mapping",
+			path: "/tmp/sirup_Test_readConfig_02.yaml",
+			want: &config{},
+		},
+		{
+			name: "Mapping with one host",
+			path: "/tmp/sirup_Test_readConfig_03.yaml",
+			want: &config{
+				Mapping: map[string]string{
+					"foo": "http://bar.com/baz",
+				},
+			},
+		},
+		{
+			name: "Mapping with multiple hosts",
+			path: "/tmp/sirup_Test_readConfig_04.yaml",
+			want: &config{
+				Mapping: map[string]string{
+					"abc": "http://def.com/",
+					"xyz": "https://hello.world/xyz/",
+				},
+			},
+		},
+		{
+			name:    "Invalid config",
+			path:    "/tmp/sirup_Test_readConfig_05.yaml",
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := readConfig(tt.path)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("readConfig() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("readConfig() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func assertResponses(t *testing.T, got, want *http.Response) {
 	t.Helper()
 
@@ -226,4 +306,10 @@ func updateResponse(r *http.Response, opts ...func(*http.Response)) *http.Respon
 		opt(r)
 	}
 	return r
+}
+
+func errorNilOrPanic(err error) {
+	if nil != err {
+		panic(err)
+	}
 }
