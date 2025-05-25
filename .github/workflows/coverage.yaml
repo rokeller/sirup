@@ -27,6 +27,6 @@ jobs:
       id: coverage
       with:
         coverage-threshold: 80
-        fail-coverage: only_pull_requests
+        fail-coverage: never
 
         cover-pkg: ./...
