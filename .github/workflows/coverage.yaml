@@ -13,7 +13,7 @@ jobs:
       pull-requests: write
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         # default fetch-depth is insufficent to find previous coverage notes
         fetch-depth: 10
