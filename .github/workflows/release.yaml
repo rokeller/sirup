@@ -42,7 +42,7 @@ jobs:
       run: |
         CGO_ENABLED=0 go build -ldflags '-s -w'
 
-    - uses: docker/login-action@v3
+    - uses: docker/login-action@v4
       with:
         registry: ${{ env.IMAGE_SERVER }}
         username: ${{ github.actor }}
