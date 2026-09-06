@@ -1,6 +1,6 @@
 module github.com/rokeller/sirup
 
-go 1.24.2
+go 1.25
 
 require (
 	github.com/gorilla/handlers v1.5.2
@@ -11,6 +11,6 @@ require (
 )
 
 require (
-	github.com/felixge/httpsnoop v1.0.3 // indirect
-	github.com/go-logr/logr v1.4.2 // indirect
+	github.com/felixge/httpsnoop v1.1.0 // indirect
+	github.com/go-logr/logr v1.4.4 // indirect
 )
